@@ -20,7 +20,7 @@ API_SERVICE_NAME = "photoslibrary"
 API_VERSION = "v1"
 SCOPES = ["https://www.googleapis.com/auth/photoslibrary.readonly"]
 
-FILE_PREFIXES_TO_SKIP = frozenset("GOPR")
+FILE_PREFIXES_TO_SKIP = frozenset(["GOPR"])
 
 
 class PhotosClient:
