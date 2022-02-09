@@ -35,15 +35,12 @@ pip install -r requirements.txt
 
 Run the program from the root of the repository:
 ```
-python3 -m drivedocsaver
+python3 -m photodownloader <backup-directory>
 ```
 
-Open the link printed out to the console and go through the necessary steps until you can copy the credential string.
-Paste the credential back into the terminal.
+Open the link and accept the authentication request.
 The program will save the credential to disk as a file called `credentials.pickle`.
 This file is in `.gitignore` so it should not be committed to the repository.
 
 On future executions of this program, the `credentials.pickle` file will be loaded, so you should not need to go through
-the OAuth flow again.
-
-TODO
+the OAuth flow again until it expires.
