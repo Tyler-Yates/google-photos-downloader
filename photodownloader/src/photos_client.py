@@ -105,7 +105,9 @@ class PhotosClient:
                 photos.append(photo)
             if response.get("nextPageToken"):
                 response = (
-                    self.photos_api.files().list(pageSize=MAX_RESULTS, pageToken=response["nextPageToken"]).execute()
+                    self.photos_api.mediaItems()
+                    .list(pageSize=MAX_RESULTS, pageToken=response["nextPageToken"])
+                    .execute()
                 )
             else:
                 response = None
