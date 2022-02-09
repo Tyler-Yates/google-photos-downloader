@@ -20,6 +20,8 @@ API_SERVICE_NAME = "photoslibrary"
 API_VERSION = "v1"
 SCOPES = ["https://www.googleapis.com/auth/photoslibrary.readonly"]
 
+FILE_PREFIXES_TO_SKIP = frozenset("GOPR")
+
 
 class PhotosClient:
     def __init__(self, client_secrets_file_name: str):
@@ -87,8 +89,13 @@ class PhotosClient:
             photo: The given photo
 
         Returns:
-            True if the photo was downloaded, False if it was skipped due to already existing on disk
+            True if the photo was downloaded, False if it was skipped
         """
+        for prefix in FILE_PREFIXES_TO_SKIP:
+            if photo.filename.startswith(prefix):
+                print(f"Skipping file {photo.filename} due to prefix match.")
+                return False
+
         photo_year_folder = os.path.join(backup_folder_path, str(photo.creation_year))
         os.makedirs(photo_year_folder, exist_ok=True)
 
