@@ -1,6 +1,6 @@
 import os
 import pickle
-from typing import Optional
+from typing import Optional, Iterator
 
 import google_auth_httplib2
 import google_auth_oauthlib.flow
@@ -67,6 +67,16 @@ class PhotosClient:
             except RefreshError:
                 print("Refresh token has expired. Must generate a new one.")
 
+    @staticmethod
+    def _photo_already_exists(backup_folder_path: str, photo: Photo) -> bool:
+        subdirectories = [x[0] for x in os.walk(os.path.join(backup_folder_path, str(photo.creation_year)))]
+        for subdirectory in subdirectories:
+            file_path = os.path.join(subdirectory, photo.filename)
+            if os.path.exists(file_path):
+                return True
+
+        return False
+
     def download_photo(self, backup_folder_path: str, photo: Photo) -> bool:
         """
         Downloads the given photo only if it has not already been downloaded.
@@ -82,11 +92,11 @@ class PhotosClient:
         photo_year_folder = os.path.join(backup_folder_path, str(photo.creation_year))
         os.makedirs(photo_year_folder, exist_ok=True)
 
-        photo_path = os.path.join(photo_year_folder, photo.filename)
-        if os.path.exists(photo_path):
-            print(f"Path {photo_path} already exists. Skipping.")
+        if self._photo_already_exists(backup_folder_path, photo):
+            print(f"Photo {photo.filename} for year {photo.creation_year} already exists. Skipping.")
             return False
 
+        photo_path = os.path.join(photo_year_folder, photo.filename)
         print(f"Path {photo_path} does not exist. Downloading...")
         response = requests.get(
             photo.download_url, allow_redirects=True, headers={"Authorization": f"Bearer {self.credentials.token}"}
@@ -95,14 +105,17 @@ class PhotosClient:
             output_file.write(response.content)
         return True
 
-    def get_photos(self):
-        photos = []
+    def get_photos(self) -> Iterator[Photo]:
+        page = 1
         request = self.photos_api.mediaItems().list(pageSize=MAX_RESULTS)
         response = request.execute()
         while response is not None:
+            print(f"Loaded page {page}...")
+            page += 1
             for photo_json in response["mediaItems"]:
                 photo = Photo(photo_json)
-                photos.append(photo)
+                yield photo
+
             if response.get("nextPageToken"):
                 response = (
                     self.photos_api.mediaItems()
@@ -111,5 +124,3 @@ class PhotosClient:
                 )
             else:
                 response = None
-
-        return photos

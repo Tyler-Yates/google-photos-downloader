@@ -1,6 +1,6 @@
 import os.path
 import sys
-from typing import List
+from typing import Iterable
 
 from photodownloader.src.photo import Photo
 from photodownloader.src.photos_client import PhotosClient
@@ -8,7 +8,7 @@ from photodownloader.src.photos_client import PhotosClient
 CLIENT_SECRETS_FILE_NAME = "client_secrets.json"
 
 
-def download_photos(photos_client: PhotosClient, backup_folder_path: str, photos: List[Photo]):
+def download_photos(photos_client: PhotosClient, backup_folder_path: str, photos: Iterable[Photo]):
     downloaded_photos = 0
     skipped_photos = 0
     error_photos = 0
@@ -46,8 +46,6 @@ def main():
     photos_client = PhotosClient(CLIENT_SECRETS_FILE_NAME)
 
     photos = photos_client.get_photos()
-
-    print(f"Found {len(photos)} photos to process...")
     download_photos(photos_client, backup_folder_path, photos)
 
 
